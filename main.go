@@ -16,14 +16,20 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	mongoURI := ""
+	if os.Getenv("ENV") != "production" {
 
-	mongoURI := os.Getenv("MONGO_URI")
-	if mongoURI == "" {
-		log.Fatal("MONGO_URI not set in .env file")
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
+
+		mongoURI = os.Getenv("MONGO_URI")
+		if mongoURI == "" {
+			log.Fatal("MONGO_URI not set in .env file")
+		}
+	} else {
+		mongoURI = os.Getenv("MONGO_URI")
 	}
 
 	clientOptions := options.Client().ApplyURI(mongoURI)
