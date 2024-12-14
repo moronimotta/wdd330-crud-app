@@ -84,6 +84,9 @@ func (r userRepository) UpdateUser(ctx context.Context, user model.User) (model.
 	if user.GoalMacroFats != 0 {
 		in["goal_macro_fats"] = user.GoalMacroFats
 	}
+	if user.Notes != "" {
+		in["notes"] = user.Notes
+	}
 
 	out, err := r.db.
 		Collection("users").
@@ -113,6 +116,8 @@ type user struct {
 	GoalMacroProteins float64 `bson:"goal_macro_proteins,omitempty"`
 	GoalMacroCarbs    float64 `bson:"goal_macro_carbs,omitempty"`
 	GoalMacroFats     float64 `bson:"goal_macro_fats,omitempty"`
+
+	Notes string `bson:"notes,omitempty"`
 }
 
 func fromModel(in model.User) user {
@@ -130,6 +135,8 @@ func fromModel(in model.User) user {
 		GoalMacroProteins: in.GoalMacroProteins,
 		GoalMacroCarbs:    in.GoalMacroCarbs,
 		GoalMacroFats:     in.GoalMacroFats,
+
+		Notes: in.Notes,
 	}
 }
 
@@ -147,6 +154,7 @@ func toModel(in user) model.User {
 		GoalMacroProteins: in.GoalMacroProteins,
 		GoalMacroCarbs:    in.GoalMacroCarbs,
 		GoalMacroFats:     in.GoalMacroFats,
+		Notes:             in.Notes,
 	}
 }
 

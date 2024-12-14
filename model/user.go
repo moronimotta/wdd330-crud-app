@@ -15,4 +15,6 @@ type User struct {
 	GoalMacroProteins float64 `json:"goal_macro_proteins"`
 	GoalMacroCarbs    float64 `json:"goal_macro_carbs"`
 	GoalMacroFats     float64 `json:"goal_macro_fats"`
+
+	Notes string `json:"notes"`
 }
