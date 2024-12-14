@@ -10,4 +10,9 @@ type User struct {
 	Weight float64 `json:"weight"`
 	Age    int     `json:"age"`
 	Gender string  `json:"gender"`
+	Goal   string  `json:"goal"`
+
+	GoalMacroProteins float64 `json:"goal_macro_proteins"`
+	GoalMacroCarbs    float64 `json:"goal_macro_carbs"`
+	GoalMacroFats     float64 `json:"goal_macro_fats"`
 }

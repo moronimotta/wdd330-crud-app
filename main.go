@@ -56,18 +56,16 @@ func main() {
 		router.GET("/", func(ctx *gin.Context) {
 			ctx.JSON(200, gin.H{"message": "Hello, World!"})
 		})
-
-		router.GET("/users", server.ListUsers)
+		// login
 		router.GET("/users/:email", server.GetUser)
+		// register
 		router.POST("/users", server.CreateUser)
 		router.PUT("/users/:email", server.UpdateUser)
-		router.DELETE("/users/:email", server.DeleteUser)
 
-		router.GET("/meal-plans", server.ListMeals)
 		router.GET("/meal-plans/:id", server.GetMeal)
 		router.POST("/meal-plans", server.CreateMeal)
 		router.PUT("/meal-plans/:id", server.UpdateMeal)
-		router.DELETE("/meal-plans/:id", server.DeleteMeal)
+
 	}
 
 	// start the router

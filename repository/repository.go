@@ -23,27 +23,6 @@ func NewUserRepository(db *mongo.Database) UserRepository {
 	return &userRepository{db: db}
 }
 
-func (r userRepository) ListUsers(ctx context.Context) ([]model.User, error) {
-	cursor, err := r.db.
-		Collection("users").
-		Find(ctx, bson.M{})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(ctx)
-
-	var out []user
-	if err := cursor.All(ctx, &out); err != nil {
-		return nil, err
-	}
-
-	users := make([]model.User, len(out))
-	for i, u := range out {
-		users[i] = toModel(u)
-	}
-	return users, nil
-}
-
 func (r userRepository) GetUser(ctx context.Context, email string) (model.User, error) {
 	var out user
 	err := r.db.
@@ -92,6 +71,20 @@ func (r userRepository) UpdateUser(ctx context.Context, user model.User) (model.
 		in["gender"] = user.Gender
 	}
 
+	if user.Goal != "" {
+		in["goal"] = user.Goal
+	}
+	if user.GoalMacroProteins != 0 {
+		in["goal_macro_proteins"] = user.GoalMacroProteins
+	}
+
+	if user.GoalMacroCarbs != 0 {
+		in["goal_macro_carbs"] = user.GoalMacroCarbs
+	}
+	if user.GoalMacroFats != 0 {
+		in["goal_macro_fats"] = user.GoalMacroFats
+	}
+
 	out, err := r.db.
 		Collection("users").
 		UpdateOne(ctx, bson.M{"email": user.Email}, bson.M{"$set": in})
@@ -104,19 +97,6 @@ func (r userRepository) UpdateUser(ctx context.Context, user model.User) (model.
 	return user, nil
 }
 
-func (r userRepository) DeleteUser(ctx context.Context, email string) error {
-	out, err := r.db.
-		Collection("users").
-		DeleteOne(ctx, bson.M{"email": email})
-	if err != nil {
-		return err
-	}
-	if out.DeletedCount == 0 {
-		return ErrUserNotFound
-	}
-	return nil
-}
-
 type user struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty"`
 	Name     string             `bson:"name,omitempty"`
@@ -127,6 +107,12 @@ type user struct {
 	Weight float64 `bson:"weight,omitempty"`
 	Age    int     `bson:"age,omitempty"`
 	Gender string  `bson:"gender,omitempty"`
+
+	Goal string `bson:"goal,omitempty"`
+
+	GoalMacroProteins float64 `bson:"goal_macro_proteins,omitempty"`
+	GoalMacroCarbs    float64 `bson:"goal_macro_carbs,omitempty"`
+	GoalMacroFats     float64 `bson:"goal_macro_fats,omitempty"`
 }
 
 func fromModel(in model.User) user {
@@ -139,19 +125,28 @@ func fromModel(in model.User) user {
 		Weight: in.Weight,
 		Age:    in.Age,
 		Gender: in.Gender,
+		Goal:   in.Goal,
+
+		GoalMacroProteins: in.GoalMacroProteins,
+		GoalMacroCarbs:    in.GoalMacroCarbs,
+		GoalMacroFats:     in.GoalMacroFats,
 	}
 }
 
 func toModel(in user) model.User {
 	return model.User{
-		ID:       in.ID.String(),
-		Name:     in.Name,
-		Email:    in.Email,
-		Password: in.Password,
-		Height:   in.Height,
-		Weight:   in.Weight,
-		Age:      in.Age,
-		Gender:   in.Gender,
+		ID:                in.ID.String(),
+		Name:              in.Name,
+		Email:             in.Email,
+		Password:          in.Password,
+		Height:            in.Height,
+		Weight:            in.Weight,
+		Age:               in.Age,
+		Gender:            in.Gender,
+		Goal:              in.Goal,
+		GoalMacroProteins: in.GoalMacroProteins,
+		GoalMacroCarbs:    in.GoalMacroCarbs,
+		GoalMacroFats:     in.GoalMacroFats,
 	}
 }
 
@@ -166,25 +161,6 @@ type mealPlanRepository struct {
 // NewMealPlanRepository creates a new instance of MealPlanRepository
 func NewMealPlanRepository(db *mongo.Database) MealPlanRepository {
 	return &mealPlanRepository{db: db}
-}
-
-func (r mealPlanRepository) ListMealPlans(ctx context.Context) ([]model.MealPlan, error) {
-	cursor, err := r.db.Collection("mealplans").Find(ctx, bson.M{})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(ctx)
-
-	var out []mealPlan
-	if err := cursor.All(ctx, &out); err != nil {
-		return nil, err
-	}
-
-	mealPlans := make([]model.MealPlan, len(out))
-	for i, mp := range out {
-		mealPlans[i] = toMealPlanModel(mp)
-	}
-	return mealPlans, nil
 }
 
 func (r mealPlanRepository) GetMealPlan(ctx context.Context, id string) (model.MealPlan, error) {
@@ -219,30 +195,15 @@ func (r mealPlanRepository) UpdateMealPlan(ctx context.Context, id string, updat
 		return model.MealPlan{}, err
 	}
 
-	updateDoc := bson.M{}
-	if updates.UserID != "" {
-		updateDoc["user_id"] = updates.UserID
-	}
-	if updates.Monday != nil {
-		updateDoc["monday"] = updates.Monday
-	}
-	if updates.Tuesday != nil {
-		updateDoc["tuesday"] = updates.Tuesday
-	}
-	if updates.Wednesday != nil {
-		updateDoc["wednesday"] = updates.Wednesday
-	}
-	if updates.Thursday != nil {
-		updateDoc["thursday"] = updates.Thursday
-	}
-	if updates.Friday != nil {
-		updateDoc["friday"] = updates.Friday
-	}
-	if updates.Saturday != nil {
-		updateDoc["saturday"] = updates.Saturday
-	}
-	if updates.Sunday != nil {
-		updateDoc["sunday"] = updates.Sunday
+	updateDoc := bson.M{
+		"user_id":   updates.UserID,
+		"monday":    updates.Monday,
+		"tuesday":   updates.Tuesday,
+		"wednesday": updates.Wednesday,
+		"thursday":  updates.Thursday,
+		"friday":    updates.Friday,
+		"saturday":  updates.Saturday,
+		"sunday":    updates.Sunday,
 	}
 
 	updateResult, err := r.db.Collection("mealplans").UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{"$set": updateDoc})
@@ -255,25 +216,6 @@ func (r mealPlanRepository) UpdateMealPlan(ctx context.Context, id string, updat
 
 	return r.GetMealPlan(ctx, id)
 }
-
-func (r mealPlanRepository) DeleteMealPlan(ctx context.Context, id string) error {
-	objectID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return err
-	}
-
-	deleteResult, err := r.db.Collection("mealplans").DeleteOne(ctx, bson.M{"_id": objectID})
-	if err != nil {
-		return err
-	}
-	if deleteResult.DeletedCount == 0 {
-		return ErrMealPlanNotFound
-	}
-
-	return nil
-}
-
-// --- Helper Functions ---
 
 type mealPlan struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
