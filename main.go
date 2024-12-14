@@ -68,7 +68,7 @@ func main() {
 			ctx.JSON(200, gin.H{"message": "Hello, World!"})
 		})
 		// login
-		router.GET("/users/:email", server.GetUser)
+		router.GET("/users/:email/:password", server.GetUser)
 		// register
 		router.POST("/users", server.CreateUser)
 		router.PUT("/users/:email", server.UpdateUser)

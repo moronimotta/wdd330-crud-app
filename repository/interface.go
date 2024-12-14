@@ -7,7 +7,8 @@ import (
 )
 
 type UserRepository interface {
-	GetUser(ctx context.Context, email string) (model.User, error)
+	GetUser(ctx context.Context, email, password string) (model.User, error)
+	GetUserByEmail(ctx context.Context, email string) (model.User, error)
 	CreateUser(ctx context.Context, in model.User) (model.User, error)
 	UpdateUser(ctx context.Context, in model.User) (model.User, error)
 }

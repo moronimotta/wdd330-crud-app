@@ -22,11 +22,12 @@ func NewServer(userRepo repository.UserRepository, mealRepo repository.MealPlanR
 
 func (s Server) GetUser(ctx *gin.Context) {
 	email := ctx.Param("email")
+	password := ctx.Param("password")
 	if email == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid argument email"})
 		return
 	}
-	user, err := s.userRepo.GetUser(ctx, email)
+	user, err := s.userRepo.GetUser(ctx, email, password)
 	if err != nil {
 		if errors.Is(err, repository.ErrUserNotFound) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -45,7 +46,7 @@ func (s Server) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	_, err := s.userRepo.GetUser(ctx, user.Email)
+	_, err := s.userRepo.GetUserByEmail(ctx, user.Email)
 	if err == nil {
 		ctx.JSON(http.StatusConflict, gin.H{"error": "user already exists"})
 		return

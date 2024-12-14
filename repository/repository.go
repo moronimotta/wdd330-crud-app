@@ -23,7 +23,22 @@ func NewUserRepository(db *mongo.Database) UserRepository {
 	return &userRepository{db: db}
 }
 
-func (r userRepository) GetUser(ctx context.Context, email string) (model.User, error) {
+func (r userRepository) GetUser(ctx context.Context, email, password string) (model.User, error) {
+	var out user
+	err := r.db.
+		Collection("users").
+		FindOne(ctx, bson.M{"email": email, "password": password}).
+		Decode(&out)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return model.User{}, ErrUserNotFound
+		}
+		return model.User{}, err
+	}
+	return toModel(out), nil
+}
+
+func (r userRepository) GetUserByEmail(ctx context.Context, email string) (model.User, error) {
 	var out user
 	err := r.db.
 		Collection("users").
