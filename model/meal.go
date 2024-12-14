@@ -20,3 +20,14 @@ type MealPlan struct {
 	Saturday  []Meal `json:"saturday"`
 	Sunday    []Meal `json:"sunday"`
 }
+
+type MealPlanInput struct {
+	UserID    string `json:"user_id"`
+	Monday    []Meal `json:"monday"`
+	Tuesday   []Meal `json:"tuesday"`
+	Wednesday []Meal `json:"wednesday"`
+	Thursday  []Meal `json:"thursday"`
+	Friday    []Meal `json:"friday"`
+	Saturday  []Meal `json:"saturday"`
+	Sunday    []Meal `json:"sunday"`
+}

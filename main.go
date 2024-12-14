@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -52,6 +53,16 @@ func main() {
 	server := http.NewServer(userRepo, mealRepository)
 
 	router := gin.Default()
+
+	// Enable CORS for all origins
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
+
 	{
 		router.GET("/", func(ctx *gin.Context) {
 			ctx.JSON(200, gin.H{"message": "Hello, World!"})
@@ -65,7 +76,6 @@ func main() {
 		router.GET("/meal-plans/:id", server.GetMeal)
 		router.POST("/meal-plans", server.CreateMeal)
 		router.PUT("/meal-plans/:id", server.UpdateMeal)
-
 	}
 
 	// start the router
