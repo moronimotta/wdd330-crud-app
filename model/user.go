@@ -13,6 +13,8 @@ type User struct {
 	Gender string  `json:"gender"`
 	Goal   string  `json:"goal"`
 
+	ActivityFactor string `json:"activity_factor"`
+
 	GoalMacroProteins float64 `json:"goal_macro_proteins"`
 	GoalMacroCarbs    float64 `json:"goal_macro_carbs"`
 	GoalMacroFats     float64 `json:"goal_macro_fats"`
