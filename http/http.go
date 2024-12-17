@@ -172,13 +172,29 @@ func (s Server) UpdateMeal(ctx *gin.Context) {
 		return
 	}
 
-	id := ctx.Param("id")
-	if id == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid argument id"})
+	userID := meal.UserID
+	if userID == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid argument userID"})
 		return
 	}
 
-	updatedMeal, err := s.mealRepo.UpdateMealPlan(ctx, id, meal)
+	existingMealPlan, err := s.mealRepo.GetMealPlanByUserID(ctx, userID)
+	if err != nil {
+		if errors.Is(err, repository.ErrMealPlanNotFound) {
+			// If meal plan does not exist, create a new one
+			meal, err = s.mealRepo.CreateMealPlan(ctx, meal)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			ctx.JSON(http.StatusOK, gin.H{"meal": meal})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	updatedMeal, err := s.mealRepo.UpdateMealPlan(ctx, existingMealPlan.ID, meal)
 	if err != nil {
 		if errors.Is(err, repository.ErrMealPlanNotFound) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
