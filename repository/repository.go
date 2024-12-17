@@ -141,6 +141,7 @@ type user struct {
 
 func fromModel(in model.User) user {
 	return user{
+		ID:                primitive.NewObjectID(),
 		Name:              in.Name,
 		LastName:          in.LastName,
 		Email:             in.Email,
