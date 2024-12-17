@@ -141,23 +141,41 @@ type user struct {
 
 func fromModel(in model.User) user {
 	return user{
-		Name:     in.Name,
-		LastName: in.LastName,
-		Email:    in.Email,
-		Password: in.Password,
-
-		Height: in.Height,
-		Weight: in.Weight,
-		Age:    in.Age,
-		Gender: in.Gender,
-		Goal:   in.Goal,
-
-		GoalMacroProteins: in.GoalMacroProteins,
-		GoalMacroCarbs:    in.GoalMacroCarbs,
-		GoalMacroFats:     in.GoalMacroFats,
-
-		Notes: in.Notes,
+		Name:              in.Name,
+		LastName:          in.LastName,
+		Email:             in.Email,
+		Password:          in.Password,
+		Height:            ifZeroFloat(in.Height, 0.0),
+		Weight:            ifZeroFloat(in.Weight, 0.0),
+		Age:               ifZeroInt(in.Age, 0),
+		Gender:            ifEmptyString(in.Gender, "unspecified"),
+		Goal:              ifEmptyString(in.Goal, "none"),
+		GoalMacroProteins: ifZeroFloat(in.GoalMacroProteins, 0.0),
+		GoalMacroCarbs:    ifZeroFloat(in.GoalMacroCarbs, 0.0),
+		GoalMacroFats:     ifZeroFloat(in.GoalMacroFats, 0.0),
+		Notes:             ifEmptyString(in.Notes, ""),
 	}
+}
+
+func ifZeroFloat(value, defaultValue float64) float64 {
+	if value == 0 {
+		return defaultValue
+	}
+	return value
+}
+
+func ifZeroInt(value, defaultValue int) int {
+	if value == 0 {
+		return defaultValue
+	}
+	return value
+}
+
+func ifEmptyString(value, defaultValue string) string {
+	if value == "" {
+		return defaultValue
+	}
+	return value
 }
 
 func toModel(in user) model.User {
