@@ -69,6 +69,9 @@ func (r userRepository) UpdateUser(ctx context.Context, user model.User) (model.
 	if user.Name != "" {
 		in["name"] = user.Name
 	}
+	if user.LastName != "" {
+		in["last_name"] = user.LastName
+	}
 	if user.Password != "" {
 		in["password"] = user.Password
 	}
@@ -118,6 +121,7 @@ func (r userRepository) UpdateUser(ctx context.Context, user model.User) (model.
 type user struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty"`
 	Name     string             `bson:"name,omitempty"`
+	LastName string             `bson:"last_name,omitempty"`
 	Email    string             `bson:"email,omitempty"`
 	Password string             `bson:"password,omitempty"`
 
@@ -138,6 +142,7 @@ type user struct {
 func fromModel(in model.User) user {
 	return user{
 		Name:     in.Name,
+		LastName: in.LastName,
 		Email:    in.Email,
 		Password: in.Password,
 
