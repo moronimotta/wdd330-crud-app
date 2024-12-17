@@ -119,7 +119,7 @@ func (r userRepository) UpdateUser(ctx context.Context, user model.User) (model.
 }
 
 type user struct {
-	ID       primitive.ObjectID `bson:"_id,"`
+	ID       primitive.ObjectID `bson:"_id, omitempty"`
 	Name     string             `bson:"name,"`
 	LastName string             `bson:"last_name,"`
 	Email    string             `bson:"email,"`
@@ -276,7 +276,7 @@ func (r mealPlanRepository) UpdateMealPlan(ctx context.Context, id string, updat
 }
 
 type mealPlan struct {
-	ID        primitive.ObjectID `bson:"_id,"`
+	ID        primitive.ObjectID `bson:"_id, omitempty"`
 	UserID    string             `bson:"user_id"`
 	Monday    []model.Meal       `bson:"monday,"`
 	Tuesday   []model.Meal       `bson:"tuesday,"`
