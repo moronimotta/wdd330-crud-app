@@ -186,6 +186,18 @@ func NewMealPlanRepository(db *mongo.Database) MealPlanRepository {
 	return &mealPlanRepository{db: db}
 }
 
+func (r mealPlanRepository) GetMealPlanByUserID(ctx context.Context, userID string) (model.MealPlan, error) {
+	var out mealPlan
+	err := r.db.Collection("mealplans").FindOne(ctx, bson.M{"user_id": userID}).Decode(&out)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return model.MealPlan{}, ErrMealPlanNotFound
+		}
+		return model.MealPlan{}, err
+	}
+	return toMealPlanModel(out), nil
+}
+
 func (r mealPlanRepository) GetMealPlan(ctx context.Context, id string) (model.MealPlan, error) {
 	var out mealPlan
 	objectID, err := primitive.ObjectIDFromHex(id)

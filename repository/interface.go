@@ -14,6 +14,7 @@ type UserRepository interface {
 }
 
 type MealPlanRepository interface {
+	GetMealPlanByUserID(ctx context.Context, userID string) (model.MealPlan, error)
 	GetMealPlan(ctx context.Context, id string) (model.MealPlan, error)
 	CreateMealPlan(ctx context.Context, mealPlan model.MealPlan) (model.MealPlan, error)
 	UpdateMealPlan(ctx context.Context, id string, updates model.MealPlan) (model.MealPlan, error)

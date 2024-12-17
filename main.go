@@ -76,6 +76,7 @@ func main() {
 		router.PUT("/users/:email", server.UpdateUser)
 
 		router.GET("/meal-plans/:id", server.GetMeal)
+		router.GET("/meal-plans/user/:userID", server.GetMealPlanByUserID)
 		router.POST("/meal-plans", server.CreateMeal)
 		router.PUT("/meal-plans/:id", server.UpdateMeal)
 	}
