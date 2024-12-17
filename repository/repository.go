@@ -119,24 +119,24 @@ func (r userRepository) UpdateUser(ctx context.Context, user model.User) (model.
 }
 
 type user struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	Name     string             `bson:"name,omitempty"`
-	LastName string             `bson:"last_name,omitempty"`
-	Email    string             `bson:"email,omitempty"`
-	Password string             `bson:"password,omitempty"`
+	ID       primitive.ObjectID `bson:"_id,"`
+	Name     string             `bson:"name,"`
+	LastName string             `bson:"last_name,"`
+	Email    string             `bson:"email,"`
+	Password string             `bson:"password,"`
 
-	Height float64 `bson:"height,omitempty"`
-	Weight float64 `bson:"weight,omitempty"`
-	Age    int     `bson:"age,omitempty"`
-	Gender string  `bson:"gender,omitempty"`
+	Height float64 `bson:"height,"`
+	Weight float64 `bson:"weight,"`
+	Age    int     `bson:"age,"`
+	Gender string  `bson:"gender,"`
 
-	Goal string `bson:"goal,omitempty"`
+	Goal string `bson:"goal,"`
 
-	GoalMacroProteins float64 `bson:"goal_macro_proteins,omitempty"`
-	GoalMacroCarbs    float64 `bson:"goal_macro_carbs,omitempty"`
-	GoalMacroFats     float64 `bson:"goal_macro_fats,omitempty"`
+	GoalMacroProteins float64 `bson:"goal_macro_proteins,"`
+	GoalMacroCarbs    float64 `bson:"goal_macro_carbs,"`
+	GoalMacroFats     float64 `bson:"goal_macro_fats,"`
 
-	Notes string `bson:"notes,omitempty"`
+	Notes string `bson:"notes,"`
 }
 
 func fromModel(in model.User) user {
@@ -276,15 +276,15 @@ func (r mealPlanRepository) UpdateMealPlan(ctx context.Context, id string, updat
 }
 
 type mealPlan struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	ID        primitive.ObjectID `bson:"_id,"`
 	UserID    string             `bson:"user_id"`
-	Monday    []model.Meal       `bson:"monday,omitempty"`
-	Tuesday   []model.Meal       `bson:"tuesday,omitempty"`
-	Wednesday []model.Meal       `bson:"wednesday,omitempty"`
-	Thursday  []model.Meal       `bson:"thursday,omitempty"`
-	Friday    []model.Meal       `bson:"friday,omitempty"`
-	Saturday  []model.Meal       `bson:"saturday,omitempty"`
-	Sunday    []model.Meal       `bson:"sunday,omitempty"`
+	Monday    []model.Meal       `bson:"monday,"`
+	Tuesday   []model.Meal       `bson:"tuesday,"`
+	Wednesday []model.Meal       `bson:"wednesday,"`
+	Thursday  []model.Meal       `bson:"thursday,"`
+	Friday    []model.Meal       `bson:"friday,"`
+	Saturday  []model.Meal       `bson:"saturday,"`
+	Sunday    []model.Meal       `bson:"sunday,"`
 }
 
 func fromMealPlanModel(in model.MealPlan) mealPlan {
