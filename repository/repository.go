@@ -276,7 +276,7 @@ func (r mealPlanRepository) UpdateMealPlan(ctx context.Context, id string, updat
 		return model.MealPlan{}, ErrMealPlanNotFound
 	}
 
-	return r.GetMealPlan(ctx, id)
+	return updates, nil
 }
 
 type mealPlan struct {
