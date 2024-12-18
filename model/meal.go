@@ -1,33 +1,18 @@
 package model
 
-type Meal struct {
-	ID       string  `json:"id"`
-	Time     string  `json:"time"`
-	Name     string  `json:"name"`
-	Proteins float64 `json:"proteins"`
-	Carbs    float64 `json:"carbs"`
-	Fats     float64 `json:"fats"`
+type MealEntry struct {
+	Meal string `json:"meal"`
+	Time string `json:"time"`
 }
 
 type MealPlan struct {
-	ID        string `json:"id"`
-	UserID    string `json:"user_id"`
-	Monday    []Meal `json:"monday"`
-	Tuesday   []Meal `json:"tuesday"`
-	Wednesday []Meal `json:"wednesday"`
-	Thursday  []Meal `json:"thursday"`
-	Friday    []Meal `json:"friday"`
-	Saturday  []Meal `json:"saturday"`
-	Sunday    []Meal `json:"sunday"`
-}
-
-type MealPlanInput struct {
-	UserID    string `json:"user_id"`
-	Monday    []Meal `json:"monday"`
-	Tuesday   []Meal `json:"tuesday"`
-	Wednesday []Meal `json:"wednesday"`
-	Thursday  []Meal `json:"thursday"`
-	Friday    []Meal `json:"friday"`
-	Saturday  []Meal `json:"saturday"`
-	Sunday    []Meal `json:"sunday"`
+	ID        string      `json:"id,omitempty"`
+	UserID    string      `json:"user_id"`
+	Monday    []MealEntry `json:"monday"`
+	Tuesday   []MealEntry `json:"tuesday"`
+	Wednesday []MealEntry `json:"wednesday"`
+	Thursday  []MealEntry `json:"thursday"`
+	Friday    []MealEntry `json:"friday"`
+	Saturday  []MealEntry `json:"saturday"`
+	Sunday    []MealEntry `json:"sunday"`
 }

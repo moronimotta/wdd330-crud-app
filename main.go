@@ -73,12 +73,12 @@ func main() {
 		router.GET("/users/:email", server.GetUserByEmail)
 		// register
 		router.POST("/users", server.CreateUser)
-		router.PUT("/users/:email", server.UpdateUser)
+		router.POST("/users/:email", server.UpdateUser)
 
 		router.GET("/meal-plans/:id", server.GetMeal)
 		router.GET("/meal-plans/user/:userID", server.GetMealPlanByUserID)
 		router.POST("/meal-plans", server.CreateMeal)
-		router.PUT("/meal-plans/:id", server.UpdateMeal)
+		router.PUT("/meal-plans", server.UpdateMeal)
 	}
 
 	// start the router

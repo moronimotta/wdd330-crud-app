@@ -33,7 +33,7 @@ func (s Server) GetUser(ctx *gin.Context) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"user": user})
@@ -51,7 +51,7 @@ func (s Server) GetUserByEmail(ctx *gin.Context) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"user": user})
@@ -72,7 +72,15 @@ func (s Server) CreateUser(ctx *gin.Context) {
 
 	user, err = s.userRepo.CreateUser(ctx, user)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// create an empty meal plan for the user
+	mealPlan := model.MealPlan{UserID: user.ID}
+	_, err = s.mealRepo.CreateMealPlan(ctx, mealPlan)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"user": user})
@@ -96,13 +104,12 @@ func (s Server) UpdateUser(ctx *gin.Context) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"user": user})
 }
 
-// Meal Functions
 func (s Server) CreateMeal(ctx *gin.Context) {
 	var meal model.MealPlan
 	if err := ctx.ShouldBindJSON(&meal); err != nil {
@@ -172,29 +179,9 @@ func (s Server) UpdateMeal(ctx *gin.Context) {
 		return
 	}
 
-	userID := meal.UserID
-	if userID == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid argument userID"})
-		return
-	}
+	meal.UserID = "ObjectID(\"" + meal.UserID + "\")"
 
-	existingMealPlan, err := s.mealRepo.GetMealPlanByUserID(ctx, userID)
-	if err != nil {
-		if errors.Is(err, repository.ErrMealPlanNotFound) {
-			// If meal plan does not exist, create a new one
-			meal, err = s.mealRepo.CreateMealPlan(ctx, meal)
-			if err != nil {
-				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
-			ctx.JSON(http.StatusOK, gin.H{"meal": meal})
-			return
-		}
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	updatedMeal, err := s.mealRepo.UpdateMealPlan(ctx, existingMealPlan.ID, meal)
+	updatedMeal, err := s.mealRepo.UpdateMealPlan(ctx, meal.UserID, meal)
 	if err != nil {
 		if errors.Is(err, repository.ErrMealPlanNotFound) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})

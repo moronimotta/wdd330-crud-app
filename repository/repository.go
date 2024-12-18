@@ -12,7 +12,8 @@ import (
 )
 
 var (
-	ErrUserNotFound = errors.New("user not found")
+	ErrUserNotFound     = errors.New("user not found")
+	ErrMealPlanNotFound = errors.New("meal plan not found")
 )
 
 type userRepository struct {
@@ -105,6 +106,9 @@ func (r userRepository) UpdateUser(ctx context.Context, user model.User) (model.
 	if user.Notes != "" {
 		in["notes"] = user.Notes
 	}
+	if user.ActivityFactor != "" {
+		in["activity_factor"] = user.ActivityFactor
+	}
 
 	out, err := r.db.
 		Collection("users").
@@ -137,6 +141,8 @@ type user struct {
 	GoalMacroFats     float64 `bson:"goal_macro_fats,"`
 
 	Notes string `bson:"notes,"`
+
+	ActivityFactor string `bson:"activity_factor,"`
 }
 
 func fromModel(in model.User) user {
@@ -155,6 +161,7 @@ func fromModel(in model.User) user {
 		GoalMacroCarbs:    0.0,
 		GoalMacroFats:     0.0,
 		Notes:             "",
+		ActivityFactor:    "1.2",
 	}
 }
 
@@ -194,12 +201,10 @@ func toModel(in user) model.User {
 		GoalMacroCarbs:    in.GoalMacroCarbs,
 		GoalMacroFats:     in.GoalMacroFats,
 		Notes:             in.Notes,
+		ActivityFactor:    in.ActivityFactor,
+		LastName:          in.LastName,
 	}
 }
-
-var (
-	ErrMealPlanNotFound = errors.New("meal plan not found")
-)
 
 type mealPlanRepository struct {
 	db *mongo.Database
@@ -240,6 +245,9 @@ func (r mealPlanRepository) GetMealPlan(ctx context.Context, id string) (model.M
 }
 
 func (r mealPlanRepository) CreateMealPlan(ctx context.Context, mealPlan model.MealPlan) (model.MealPlan, error) {
+	// Generate a new ObjectID for the meal plan
+	mealPlan.ID = primitive.NewObjectID().Hex()
+
 	insertResult, err := r.db.Collection("mealplans").InsertOne(ctx, fromMealPlanModel(mealPlan))
 	if err != nil {
 		return model.MealPlan{}, err
@@ -249,13 +257,8 @@ func (r mealPlanRepository) CreateMealPlan(ctx context.Context, mealPlan model.M
 }
 
 func (r mealPlanRepository) UpdateMealPlan(ctx context.Context, id string, updates model.MealPlan) (model.MealPlan, error) {
-	objectID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return model.MealPlan{}, err
-	}
 
 	updateDoc := bson.M{
-		"user_id":   updates.UserID,
 		"monday":    updates.Monday,
 		"tuesday":   updates.Tuesday,
 		"wednesday": updates.Wednesday,
@@ -265,7 +268,7 @@ func (r mealPlanRepository) UpdateMealPlan(ctx context.Context, id string, updat
 		"sunday":    updates.Sunday,
 	}
 
-	updateResult, err := r.db.Collection("mealplans").UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{"$set": updateDoc})
+	updateResult, err := r.db.Collection("mealplans").UpdateOne(ctx, bson.M{"user_id": updates.UserID}, bson.M{"$set": updateDoc})
 	if err != nil {
 		return model.MealPlan{}, err
 	}
@@ -279,17 +282,18 @@ func (r mealPlanRepository) UpdateMealPlan(ctx context.Context, id string, updat
 type mealPlan struct {
 	ID        primitive.ObjectID `bson:"_id, omitempty"`
 	UserID    string             `bson:"user_id"`
-	Monday    []model.Meal       `bson:"monday,"`
-	Tuesday   []model.Meal       `bson:"tuesday,"`
-	Wednesday []model.Meal       `bson:"wednesday,"`
-	Thursday  []model.Meal       `bson:"thursday,"`
-	Friday    []model.Meal       `bson:"friday,"`
-	Saturday  []model.Meal       `bson:"saturday,"`
-	Sunday    []model.Meal       `bson:"sunday,"`
+	Monday    []model.MealEntry  `bson:"monday"`
+	Tuesday   []model.MealEntry  `bson:"tuesday"`
+	Wednesday []model.MealEntry  `bson:"wednesday"`
+	Thursday  []model.MealEntry  `bson:"thursday"`
+	Friday    []model.MealEntry  `bson:"friday"`
+	Saturday  []model.MealEntry  `bson:"saturday"`
+	Sunday    []model.MealEntry  `bson:"sunday"`
 }
 
 func fromMealPlanModel(in model.MealPlan) mealPlan {
 	return mealPlan{
+		ID:        primitive.NewObjectID(),
 		UserID:    in.UserID,
 		Monday:    in.Monday,
 		Tuesday:   in.Tuesday,
