@@ -137,6 +137,7 @@ func (s Server) CreateMeal(ctx *gin.Context) {
 
 func (s Server) GetMealPlanByUserID(ctx *gin.Context) {
 	userID := ctx.Param("userID")
+	userID = "ObjectID(\"" + userID + "\")"
 	if userID == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid argument userID"})
 		return
